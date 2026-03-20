@@ -1,0 +1,19 @@
+# WebMuAddons/.htaccess
+
+# Prioridad de archivos iniciales
+DirectoryIndex index.html index.php
+
+# Habilitar rewrite
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+
+    # Ignorar archivos y carpetas existentes
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteCond %{REQUEST_FILENAME} !-d
+
+    # Redirigir todo lo demás a index.html para SPA
+    RewriteRule ^.*$ /MuCoreX/index.html [L,QSA]
+</IfModule>
+
+# Evitar listado de directorios
+Options -Indexes

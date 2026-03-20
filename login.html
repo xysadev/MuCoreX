@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login MU API - Full Flow</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        body { background: #f8f9fa; }
+        .login-container { max-width: 500px; margin-top: 50px; }
+        pre { background: #111; color: #0f0; padding: 10px; height: 200px; overflow: auto; }
+        .btn-block { width: 100%; }
+    </style>
+</head>
+<body>
+
+<div class="container login-container">
+    <div class="card shadow-sm">
+        <div class="card-body">
+            <h4 class="card-title text-center mb-4">MU API - Login & Test Flow</h4>
+
+            <div id="sessionInfo" class="mb-3 text-info"></div>
+
+            <input id="user" class="form-control mb-2" placeholder="Username" autocomplete="username">
+            <input id="pass" type="password" class="form-control mb-2" placeholder="Password" autocomplete="current-password">
+
+            <button type="button" class="btn btn-primary btn-block mb-2" id="btnLogin">Login</button>
+            <button class="btn btn-danger btn-block mb-2" id="btnLogout">Logout</button>
+            <button type="button" class="btn btn-success btn-block mb-2" id="btnTest">Test</button>
+
+            <pre id="log"></pre>
+        </div>
+    </div>
+</div>
+
+<!-- Cargar el script de main.js -->
+<script src="assets/js/main.js"></script>
+
+</body>
+</html>
