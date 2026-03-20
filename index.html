@@ -7,10 +7,9 @@
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
 </head>
 <body>
-    <nav class="p-2">
-        <a href="login.html" class="btn btn-primary" data-spa="true">Ir a Login</a>
-        <a href="dashboard" class="btn btn-secondary" data-spa="true">Dashboard</a>
-        <a href="settings" class="btn btn-secondary" data-spa="true">Configuración</a>
+    <nav class="p-2" style="text-transform: uppercase;">
+        <a href="" class="btn btn-primary" data-spa="true" style="font-weight: bold;">Inicio</a>
+        <a href="#login" class="btn btn-primary" data-spa="true" style="font-weight: bold;">Login</a>
     </nav>
 
     <div id="app" class="p-4">
@@ -20,14 +19,13 @@
 
     <script>
         async function router() {
-            const path = window.location.pathname.replace(/^.*\/MuCoreX\/?/, '');
             const app = document.getElementById('app');
-            if(!app) return;
+            if (!app) return;
 
-            switch(path) {
-                case 'login.html':
+            const hash = window.location.hash.replace('#', ''); // login, dashboard, settings
+
+            switch(hash) {
                 case 'login':
-                    // Cargar login.html real
                     try {
                         const res = await fetch('login.html');
                         const html = await res.text();
@@ -42,7 +40,6 @@
                         script.src = 'assets/js/main.js';
                         document.body.appendChild(script);
 
-                        // Esperar que cargue main.js y luego validar sesión
                         script.onload = () => {
                             if(typeof validateSession === 'function') validateSession();
                         };
@@ -52,29 +49,37 @@
                     break;
 
                 case 'dashboard':
-                    app.innerHTML = '<h1>Dashboard</h1><p>Bienvenido al panel.</p>';
+                    app.innerHTML = `
+                        <h1>Dashboard</h1>
+                        <p>Bienvenido al panel.</p>
+                    `;
                     break;
 
                 case 'settings':
-                    app.innerHTML = '<h1>Configuración</h1><p>Ajustes del addon.</p>';
+                    app.innerHTML = `
+                        <h1>Configuración</h1>
+                        <p>Ajustes del addon.</p>
+                    `;
                     break;
 
                 default:
-                    app.innerHTML = '<h1>Inicio</h1><p>Bienvenido a tu addon.</p>';
+                    app.innerHTML = `
+                        <h1>Inicio</h1>
+                        <p>Bienvenido a tu addon.</p>
+                    `;
             }
         }
 
-        window.addEventListener('popstate', router);
-        window.addEventListener('DOMContentLoaded', () => {
-            router();
+        window.addEventListener('hashchange', router);
+        window.addEventListener('DOMContentLoaded', router);
 
-            document.body.addEventListener('click', e => {
-                if(e.target.tagName === 'A' && e.target.dataset.spa === 'true') {
-                    e.preventDefault();
-                    history.pushState({}, '', e.target.getAttribute('href'));
-                    router();
-                }
-            });
+        // SPA links
+        document.body.addEventListener('click', e => {
+            if(e.target.tagName === 'A' && e.target.dataset.spa === 'true') {
+                e.preventDefault();
+                const href = e.target.getAttribute('href');
+                window.location.hash = href.startsWith('#') ? href : '#' + href;
+            }
         });
     </script>
 </body>
