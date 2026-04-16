@@ -1,0 +1,147 @@
+
+<style>
+body{
+    background:radial-gradient(circle at top,#020617,#020617 40%,#000);
+    color:#e2e8f0;
+    font-family:'Segoe UI',sans-serif;
+}
+.container{
+    max-width:1100px;
+    padding:0 12px;
+}
+.account-card{
+    background:linear-gradient(145deg,#020617,#0b1224);
+    border:1px solid rgba(56,189,248,.15);
+    border-radius:16px;
+    padding:18px;
+    position:relative;
+    overflow:hidden;
+    box-shadow:0 12px 35px rgba(0,0,0,.65);
+    backdrop-filter:blur(6px);
+}
+.account-card::before{
+    content:'';
+    position:absolute;
+    inset:-2px;
+    background:radial-gradient(circle at top left,rgba(56,189,248,.18),transparent 60%);
+    pointer-events:none;
+}
+.account-card::after{
+    content:'';
+    position:absolute;
+    width:260px;
+    height:260px;
+    background:radial-gradient(circle,rgba(56,189,248,.12),transparent 70%);
+    top:-90px;
+    right:-90px;
+    pointer-events:none;
+}
+.account-name{
+  font-size: 22px;
+  font-weight: 800;
+  letter-spacing: 1px;
+  background: linear-gradient(90deg, #38bdf8, #a78bfa);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+.account-meta{
+    font-size:12px;
+    color:#94a3b8;
+}
+.char-grid{
+    display:flex;
+    flex-wrap:nowrap;
+    gap:12px;
+    overflow-x:auto;
+    padding-bottom:10px;
+    scroll-snap-type:x mandatory;
+}
+.char-card{
+    flex:0 0 190px;
+    height:190px;
+    background:linear-gradient(145deg,#020617,#0f172a);
+    border:1px solid #1e293b;
+    border-radius:16px;
+    padding:14px;
+    display:flex;
+    flex-direction:column;
+}
+.char-header{
+    display:flex;
+    justify-content:space-between;
+}
+.char-name{font-size:15px;font-weight:700}
+.char-class{font-size:12px;color:#94a3b8}
+.char-body{margin-top:10px;flex:1}
+.stat{font-size:12px;color:#cbd5e1}
+.progress{height:6px;background:#0b1224;border-radius:6px;overflow:hidden}
+.progress-bar{height:100%;background:linear-gradient(90deg,#38bdf8,#22c55e)}
+.char-footer{display:flex;justify-content:space-between;font-size:11px;color:#94a3b8}
+.pk-badge{padding:2px 6px;font-size:11px;border-radius:2px}
+.pk-badge.hero{color:#3b82f6}
+.pk-badge.commoner{color:#93c5fd}
+.pk-badge.outlaw{color:#f59e0b}
+.pk-badge.murderer{color:#ef4444}
+.section-title{
+    margin:18px 0 10px;
+    font-size:13px;
+    color:#94a3b8;
+    text-transform:uppercase;
+}
+</style>
+
+<div class="container">
+
+<div class="account-card">
+    <div class="d-flex justify-content-between align-items-center">
+        <div>
+            <div class="account-name" id="acc-username"></div>
+            <div class="account-meta" id="stat-lastlogin"></div>
+        </div>
+
+        <div class="text-right">
+            <div><b id="stat-characters"></b></div>
+            <div class="account-meta">Characters</div>
+        </div>
+    </div>
+
+    <div class="mt-2 account-meta">
+        <div>Email: <span id="acc-email"></span></div>
+        <div>GUID: <span id="acc-guid"></span></div>
+    </div>
+</div>
+
+<div class="section-title pt-4">Personajes</div>
+
+<div class="char-grid" id="char-grid"></div>
+
+</div>
+
+<template id="char-template">
+    <div class="char-card">
+        <div class="char-header">
+            <div>
+                <div class="char-name"></div>
+                <div class="char-class"></div>
+            </div>
+
+            <img class="char-avatar"
+                 style="width:48px;height:48px;border-radius:12px;">
+        </div>
+
+        <div class="char-body">
+            <div class="stat char-level"></div>
+
+            <div class="progress">
+                <div class="progress-bar"></div>
+            </div>
+
+            <div class="stat char-resets"></div>
+        </div>
+
+        <div class="char-footer">
+            <span class="char-map"></span>
+            <span class="pk-badge"></span>
+        </div>
+    </div>
+</template>

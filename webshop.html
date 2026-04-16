@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MU WebShop</title>
+
+
+<style>
+body {
+    background: radial-gradient(circle at top, #020617, #000);
+    color: #e2e8f0;
+    font-family: 'Segoe UI', sans-serif;
+}
+
+.container { max-width: 1300px; }
+
+/* HEADER */
+.shop-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin: 25px 0;
+}
+
+.balance-box {
+    background: #020617;
+    border: 1px solid #1e293b;
+    padding: 8px 15px;
+    border-radius: 10px;
+}
+
+/* CATEGORY */
+.category-bar {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+}
+
+.category-btn {
+    padding: 6px 14px;
+    border-radius: 8px;
+    border: 1px solid #1e293b;
+    background: #020617;
+    font-size: 13px;
+}
+
+.category-btn.active {
+    background: #22c55e;
+    color: #000;
+    font-weight: bold;
+}
+
+/* CARD */
+.item-card {
+    background: linear-gradient(145deg, #020617, #0f172a);
+    border: 1px solid #1e293b;
+    border-radius: 14px;
+    padding: 15px;
+    position: relative;
+    transition: .25s;
+}
+
+.item-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 25px rgba(0,0,0,.7);
+}
+
+/* RARITY */
+.legendary { border-color: gold; }
+.epic { border-color: #a855f7; }
+
+.badge-rarity {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    font-size: 11px;
+    padding: 2px 8px;
+    border-radius: 6px;
+}
+
+.badge-legendary { background: gold; color: #000; }
+.badge-epic { background: #a855f7; }
+
+/* IMAGE */
+.item-img {
+    height: 90px;
+    border-radius: 10px;
+    background: linear-gradient(45deg, #020617, #111);
+    margin-bottom: 10px;
+}
+
+/* TEXT */
+.item-name { font-weight: bold; }
+.item-desc { font-size: 12px; color: #94a3b8; }
+
+/* PRICE */
+.price {
+    font-weight: bold;
+    color: #22c55e;
+}
+
+/* BTN */
+.btn-buy {
+    width: 100%;
+    background: linear-gradient(90deg, #38bdf8, #22c55e);
+    border: none;
+    font-weight: bold;
+}
+
+/* CART (VISUAL ONLY) */
+.cart-box {
+    background: #020617;
+    border: 1px solid #1e293b;
+    padding: 8px 15px;
+    border-radius: 10px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <!-- HEADER -->
+    <div class="shop-header">
+        <h4>MU WebShop</h4>
+        <div>
+            <span class="balance-box mr-2">WCoin: 25,000</span>
+            <span class="cart-box">🛒 3 Items</span>
+        </div>
+    </div>
+
+    <!-- CATEGORIES -->
+    <div class="category-bar">
+        <div class="category-btn active">All</div>
+        <div class="category-btn">Weapons</div>
+        <div class="category-btn">Armors</div>
+        <div class="category-btn">Wings</div>
+        <div class="category-btn">Pets</div>
+    </div>
+
+    <!-- ITEMS -->
+    <div class="row">
+
+        <!-- ITEM -->
+        <div class="col-md-3 mb-4">
+            <div class="item-card legendary">
+                <div class="badge-rarity badge-legendary">Legendary</div>
+                <div class="item-img"></div>
+
+                <div class="item-name">Sword of Apocalypse</div>
+                <div class="item-desc">+15 Full Excellent + Luck</div>
+
+                <hr style="border-color:#1e293b">
+
+                <div class="price">3200 WC</div>
+                <button class="btn btn-buy mt-2">Add to Cart</button>
+            </div>
+        </div>
+
+        <!-- ITEM -->
+        <div class="col-md-3 mb-4">
+            <div class="item-card epic">
+                <div class="badge-rarity badge-epic">Epic</div>
+                <div class="item-img"></div>
+
+                <div class="item-name">Dragon Set</div>
+                <div class="item-desc">Full Ancient +13</div>
+
+                <hr style="border-color:#1e293b">
+
+                <div class="price">1800 WC</div>
+                <button class="btn btn-buy mt-2">Add to Cart</button>
+            </div>
+        </div>
+
+        <!-- ITEM -->
+        <div class="col-md-3 mb-4">
+            <div class="item-card">
+                <div class="item-img"></div>
+
+                <div class="item-name">Wings of Chaos</div>
+                <div class="item-desc">Level 3 Wings</div>
+
+                <hr style="border-color:#1e293b">
+
+                <div class="price">4000 WC</div>
+                <button class="btn btn-buy mt-2">Add to Cart</button>
+            </div>
+        </div>
+
+        <!-- ITEM -->
+        <div class="col-md-3 mb-4">
+            <div class="item-card legendary">
+                <div class="badge-rarity badge-legendary">Legendary</div>
+                <div class="item-img"></div>
+
+                <div class="item-name">Fenrir Gold</div>
+                <div class="item-desc">Premium Mount</div>
+
+                <hr style="border-color:#1e293b">
+
+                <div class="price">5500 WC</div>
+                <button class="btn btn-buy mt-2">Add to Cart</button>
+            </div>
+        </div>
+
+    </div>
+
+</div>
+
+</body>
+</html>
