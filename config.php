@@ -9,7 +9,7 @@ return [
         'host'        => 'localhost',
         'dbname'      => 'MuOnline',
         'user'        => 'sa',
-        'pass'        => 'tu_pass',
+        'pass'        => '493603',
         'force_https' => false
     ]
 ];
