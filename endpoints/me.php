@@ -1,34 +1,38 @@
 <?php
+
 require_once __DIR__ . '/../core/Database.php';
 require_once __DIR__ . '/../core/Core.php';
-require_once __DIR__ . '/../core/Logger.php';
 
 $config = require __DIR__ . '/../config.php';
 
-$logger = new Logger();
-$db = new Database($config);
-$core = new Core($db, $logger, $config['db']['force_https'] ?? false);
+$core = new Core(new Database($config));
 
-// Obtener token desde Bearer
-$token = $core->getBearerToken();
+header('Content-Type: application/json; charset=utf-8');
 
-// Validar token y obtener user_id
-$auth = $core->validateToken();
-$uid = $auth['user_id'];
+/* AUTH */
+$auth = $core->auth(true);
 
-// Obtener info del usuario
-$row = $core->querySingle("
+/* USER */
+$user = $core->queryOne("
     SELECT memb___id, mail_addr
     FROM MEMB_INFO
     WHERE memb_guid = :uid
-", ['uid' => $uid]);
+", [
+    'uid' => $auth['user_id']
+]);
 
-if (!$row) {
-    $core->json(['status'=>'error','message'=>'User not found']);
+if (!$user) {
+    $core->json([
+        'status' => 'error',
+        'message' => 'User not found'
+    ], 404);
 }
 
-// Respuesta final
+/* RESPONSE */
 $core->json([
     'status' => 'ok',
-    'user' => $row
+    'user' => [
+        'username' => $user['memb___id'],
+        'email' => $user['mail_addr']
+    ]
 ]);

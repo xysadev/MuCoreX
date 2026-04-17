@@ -2,14 +2,14 @@
 return [
     'app' => [
         'base_url' => (isset($_SERVER['HTTPS']) ? 'https://' : 'http://') 
-            . $_SERVER['HTTP_HOST'] . '/WebEngine/MuCoreX/'
+            . $_SERVER['HTTP_HOST'] . '/MuCoreX/'
     ],
     'db' => [
-        'env'         => 'dev', # prod / dev
+        'env'         => 'prod',
         'host'        => 'localhost',
-        'dbname'      => 'MuOnlineBase',
+        'dbname'      => 'MuOnline',
         'user'        => 'sa',
-        'pass'        => '493603',
+        'pass'        => 'tu_pass',
         'force_https' => false
     ]
 ];

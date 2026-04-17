@@ -1,17 +1,20 @@
 <?php
+
 require_once __DIR__ . '/../core/Database.php';
 require_once __DIR__ . '/../core/Core.php';
-require_once __DIR__ . '/../core/Logger.php';
 
 $config = require __DIR__ . '/../config.php';
 
-$db = new Database($config);
-$logger = new Logger();
-$core = new Core($db, $logger);
+$core = new Core(new Database($config));
 
-$core->validateToken();
+header('Content-Type: application/json; charset=utf-8');
 
+/* AUTH */
+$auth = $core->auth(true);
+
+/* RESPONSE */
 $core->json([
-    'status' => 'ok'
+    'status' => 'ok',
+    'user_id' => $auth['user_id'],
+    'last_action' => $auth['last_action_at']
 ]);
-?>

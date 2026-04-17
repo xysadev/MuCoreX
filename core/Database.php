@@ -7,7 +7,7 @@ class Database {
 
     public function __construct(array $config) {
         if (empty($config['db']) || !is_array($config['db'])) {
-            $this->handleError('Configuración DB inválida');
+            $this->fail('Configuración DB inválida');
         }
 
         $this->config = $config['db'];
@@ -15,11 +15,21 @@ class Database {
     }
 
     private function connect(): void {
-        $encrypt = ($this->config['env'] ?? 'dev') === 'prod' ? 'Yes' : 'No';
-        $trust   = $encrypt === 'Yes' ? ';TrustServerCertificate=Yes' : '';
-        $dsn = "sqlsrv:Server={$this->config['host']};Database={$this->config['dbname']};Encrypt={$encrypt}{$trust}";
+        $isProd = ($this->config['env'] ?? 'dev') === 'prod';
+
+        $encrypt = $isProd ? 'Yes' : 'No';
+        $trust = $isProd ? ';TrustServerCertificate=Yes' : '';
+
+        $dsn = sprintf(
+            "sqlsrv:Server=%s;Database=%s;Encrypt=%s%s",
+            $this->config['host'],
+            $this->config['dbname'],
+            $encrypt,
+            $trust
+        );
 
         $attempts = 0;
+
         while ($attempts <= $this->maxRetries) {
             try {
                 $this->pdo = new PDO(
@@ -28,19 +38,28 @@ class Database {
                     $this->config['pass'],
                     [
                         PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
-                        PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC
+                        PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+                        PDO::ATTR_EMULATE_PREPARES => false
                     ]
                 );
                 return;
+
             } catch (PDOException $e) {
                 $attempts++;
+                error_log("[DB CONNECT ERROR] " . $e->getMessage());
+
                 if ($attempts > $this->maxRetries) {
-                    $this->handleError('Conexión fallida a la base de datos');
+                    $this->fail('Conexión fallida a la base de datos');
                 }
-                sleep(1);
+
+                usleep(500000);
             }
         }
     }
+
+    /* =========================
+       CORE OPS
+    ========================= */
 
     public function execute(string $sql, array $params = []): int {
         try {
@@ -48,14 +67,9 @@ class Database {
             $stmt->execute($params);
             return $stmt->rowCount();
         } catch (PDOException $e) {
-            throw $e;
+            error_log("[DB EXEC ERROR] " . $e->getMessage());
+            throw new Exception($this->isProd() ? 'Database error' : $e->getMessage());
         }
-    }
-
-    public function fetchAll(string $sql, array $params = []): array {
-        $stmt = $this->pdo->prepare($sql);
-        $stmt->execute($params);
-        return $stmt->fetchAll();
     }
 
     public function fetch(string $sql, array $params = []): ?array {
@@ -64,33 +78,52 @@ class Database {
         return $stmt->fetch() ?: null;
     }
 
-    public function fetchSingle(string $sql, array $params = []): ?array {
-        return $this->fetch($sql, $params);
+    public function fetchAll(string $sql, array $params = []): array {
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute($params);
+        return $stmt->fetchAll();
     }
 
-    public function secureQuery(string $sql, array $params = []): array {
-        return $this->fetchAll($sql, $params);
+    /* =========================
+       TRANSACTIONS
+    ========================= */
+
+    public function begin(): void {
+        $this->pdo->beginTransaction();
+    }
+
+    public function commit(): void {
+        $this->pdo->commit();
+    }
+
+    public function rollback(): void {
+        $this->pdo->rollBack();
+    }
+
+    /* =========================
+       CONFIG HELPERS
+    ========================= */
+
+    public function isProd(): bool {
+        return ($this->config['env'] ?? 'dev') === 'prod';
+    }
+
+    public function forceHttps(): bool {
+        return (bool) ($this->config['force_https'] ?? false);
     }
 
     public function getApiToken(): string {
         return $this->config['api_token'] ?? '';
     }
 
-    public function forceHttps(): bool {
-        return $this->config['force_https'] ?? false;
-    }
+    /* =========================
+       ERROR HANDLER
+    ========================= */
 
-    public function isProd(): bool {
-        return ($this->config['env'] ?? 'dev') === 'prod';
-    }
-
-    private function handleError(string $message): void {
-        error_log("[Database Error] " . $message);
-        if ($this->isProd()) {
-            die(json_encode(['status'=>'error','message'=>'Error de conexión']));
-        } else {
-            die(json_encode(['status'=>'error','message'=>$message]));
-        }
+    private function fail(string $message): void {
+        error_log("[DB ERROR] " . $message);
+        throw new Exception(
+            $this->isProd() ? 'Database error' : $message
+        );
     }
 }
-?>

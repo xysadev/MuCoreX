@@ -2,85 +2,253 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Mi Addon SPA</title>
+    <title>MuCoreX</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
 </head>
+
 <body>
-    <nav class="p-2" style="text-transform: uppercase;">
-        <a href="" class="btn btn-primary" data-spa="true" style="font-weight: bold;">Inicio</a>
-        <a href="#login" class="btn btn-primary" data-spa="true" style="font-weight: bold;">Login</a>
-    </nav>
 
-    <div id="app" class="p-4">
-        <h1>Inicio</h1>
-        <p>Bienvenido a tu addon.</p>
-    </div>
+<script>
+window.APP = {
+    NAME: 'mucorex',
+    BASE: '/mucorex/'
+};
+</script>
 
-    <script>
-        async function router() {
-            const app = document.getElementById('app');
-            if (!app) return;
+<style>
+body {
+    background: radial-gradient(circle at top, #020617, #000);
+}
 
-            const hash = window.location.hash.replace('#', ''); // login, dashboard, settings
+/* NAV */
+.nav-glass {
+    position: sticky;
+    top: 0;
+    z-index: 999;
+    display: flex;
+    gap: 10px;
+    padding: 10px 15px;
+    overflow-x: auto;
+    white-space: nowrap;
+    background: rgba(15, 23, 42, 0.45);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+}
 
-            switch(hash) {
-                case 'login':
-                    try {
-                        const res = await fetch('login.html');
-                        const html = await res.text();
-                        app.innerHTML = html;
+.nav-glass::-webkit-scrollbar { display:none; }
 
-                        // Eliminar script viejo si existe
-                        const oldScript = document.querySelector('script[src="assets/js/main.js"]');
-                        if(oldScript) oldScript.remove();
+.nav-glass .btn {
+    flex-shrink: 0;
+    font-weight: 700;
+    text-transform: uppercase;
+    background: rgba(59,130,246,0.15);
+    border: 1px solid rgba(59,130,246,0.35);
+    color: #93c5fd;
+}
 
-                        // Agregar main.js para login
-                        const script = document.createElement('script');
-                        script.src = 'assets/js/main.js';
-                        document.body.appendChild(script);
+.nav-glass .btn.active {
+    background: rgba(59,130,246,0.5);
+    color: #fff;
+}
+</style>
 
-                        script.onload = () => {
-                            if(typeof validateSession === 'function') validateSession();
-                        };
-                    } catch(err) {
-                        app.innerHTML = '<p class="text-danger">Error cargando login.html</p>';
-                    }
-                    break;
+<nav class="nav-glass">
+    <a href="#login" data-spa="true" class="btn">Login</a>
+    <a href="#dashboard" data-spa="true" class="btn">Account</a>
+    <a href="#webshop" data-spa="true" class="btn">Webshop</a>
+</nav>
 
-                case 'dashboard':
-                    app.innerHTML = `
-                        <h1>Dashboard</h1>
-                        <p>Bienvenido al panel.</p>
-                    `;
-                    break;
+<div id="app" class="p-4"></div>
 
-                case 'settings':
-                    app.innerHTML = `
-                        <h1>Configuración</h1>
-                        <p>Ajustes del addon.</p>
-                    `;
-                    break;
+<script>
 
-                default:
-                    app.innerHTML = `
-                        <h1>Inicio</h1>
-                        <p>Bienvenido a tu addon.</p>
-                    `;
+/* =========================
+   AUTH CHECK (REAL)
+========================= */
+async function isLogged() {
+    const token = localStorage.getItem('token');
+    if (!token) return false;
+
+    try {
+        const res = await fetch('./endpoints/validate_token.php', {
+            headers: { Authorization: `Bearer ${token}` }
+        });
+
+        return res.ok;
+    } catch {
+        return false;
+    }
+}
+
+/* =========================
+   LOADING OVERLAY
+========================= */
+function createLock(text = 'Cargando...') {
+    const lock = document.createElement('div');
+    lock.id = 'global-lock';
+
+    lock.innerHTML = `
+        <div style="text-align:center;color:#fff;font-weight:bold;">
+            <div class="spinner-border text-light mb-3"></div>
+            <div>${text}</div>
+        </div>
+    `;
+
+    lock.style = `
+        position:fixed;
+        inset:0;
+        background:rgba(0,0,0,0.6);
+        backdrop-filter: blur(4px);
+        z-index:9999;
+        display:flex;
+        align-items:center;
+        justify-content:center;
+    `;
+
+    document.body.appendChild(lock);
+    return lock;
+}
+
+/* =========================
+   SCRIPT LOADER
+========================= */
+function loadScriptOnce(src) {
+    return new Promise((resolve, reject) => {
+        if (document.querySelector(`script[src="${src}"]`)) return resolve();
+
+        const s = document.createElement('script');
+        s.src = src;
+        s.onload = resolve;
+        s.onerror = reject;
+        document.body.appendChild(s);
+    });
+}
+
+/* =========================
+   NAV STATE
+========================= */
+function setActiveNav() {
+    const hash = window.location.hash;
+
+    document.querySelectorAll('.nav-glass .btn').forEach(b => {
+        b.classList.toggle('active', b.getAttribute('href') === hash);
+    });
+}
+
+/* =========================
+   ROUTER
+========================= */
+async function router() {
+
+    const app = document.getElementById('app');
+    const hash = window.location.hash.replace('#', '');
+
+    switch (hash) {
+
+        case 'login': {
+            const lock = createLock('Login...');
+            try {
+                const html = await fetch('login.html').then(r => r.text());
+                app.innerHTML = html;
+
+                await loadScriptOnce('assets/js/login.js');
+
+                if (typeof validateSession === 'function') {
+                    await validateSession();
+                }
+
+            } finally {
+                lock.remove();
             }
+            break;
         }
 
-        window.addEventListener('hashchange', router);
-        window.addEventListener('DOMContentLoaded', router);
-
-        // SPA links
-        document.body.addEventListener('click', e => {
-            if(e.target.tagName === 'A' && e.target.dataset.spa === 'true') {
-                e.preventDefault();
-                const href = e.target.getAttribute('href');
-                window.location.hash = href.startsWith('#') ? href : '#' + href;
+        case 'dashboard': {
+            const ok = await isLogged();
+            if (!ok) {
+                localStorage.removeItem('token');
+                window.location.hash = 'login';
+                return;
             }
+
+            const lock = createLock('Panel...');
+            try {
+                const html = await fetch('dashboard.html').then(r => r.text());
+                app.innerHTML = html;
+
+                await loadScriptOnce('assets/js/dashboard.js');
+                await window.dashboard.init();
+
+            } finally {
+                lock.remove();
+            }
+            break;
+        }
+
+        case 'webshop': {
+            const ok = await isLogged();
+            if (!ok) {
+                window.location.hash = 'login';
+                return;
+            }
+
+            const lock = createLock('Webshop...');
+            try {
+                const html = await fetch('webshop.html').then(r => r.text());
+                app.innerHTML = html;
+
+                await loadScriptOnce('assets/js/webshop.js');
+
+            } finally {
+                lock.remove();
+            }
+            break;
+        }
+    }
+
+    setActiveNav();
+}
+
+/* =========================
+   EVENTS
+========================= */
+window.addEventListener('hashchange', router);
+window.addEventListener('DOMContentLoaded', router);
+
+document.body.addEventListener('click', e => {
+    if (e.target.dataset.spa === 'true') {
+        e.preventDefault();
+        window.location.hash = e.target.getAttribute('href');
+    }
+});
+
+/* =========================
+   BOOT STRAP AUTH
+========================= */
+(async () => {
+    const token = localStorage.getItem('token');
+
+    if (!token) {
+        window.location.hash = 'login';
+        return;
+    }
+
+    try {
+        const res = await fetch('./endpoints/validate_token.php', {
+            headers: { Authorization: `Bearer ${token}` }
         });
-    </script>
+
+        if (!res.ok) throw new Error();
+
+        window.location.hash = 'dashboard';
+
+    } catch {
+        localStorage.removeItem('token');
+        window.location.hash = 'login';
+    }
+})();
+</script>
+
 </body>
 </html>
